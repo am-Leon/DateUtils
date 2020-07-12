@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="minute_ago">Minutes ago</string>
+    <string name="minutes_ago">Minutes ago</string>
+    <string name="hour_ago">Hour ago</string>
+    <string name="hours_ago">Hours ago</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="am">AM</string>
+    <string name="pm">PM</string>
+    <string name="today">Today</string>
+    <string name="now">Now</string>
+
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="minute_ago">دقيقة</string>
+    <string name="minutes_ago">دقائق</string>
+    <string name="hour_ago">ساعة</string>
+    <string name="hours_ago">ساعات</string>
+    <string name="yesterday">أمس</string>
+    <string name="am">ص</string>
+    <string name="pm">م</string>
+    <string name="today">الیوم</string>
+    <string name="now">الاّن</string>
+
+</resources>
