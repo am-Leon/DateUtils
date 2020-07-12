@@ -17,7 +17,7 @@ public class DateUtils {
     private Locale appLocale;
     private Calendar calendar;
     private String txtDate, txtTimeZone;
-    private DateFormat formatBackend, defaultDateFormat;
+    private DateFormat formatBackend, fullBackendFormat, defaultDateFormat;
 
 
     //------------------------- Class Constructor ------------------------------
@@ -62,6 +62,7 @@ public class DateUtils {
         else
             this.appLocale = Locale.US;
 
+        fullBackendFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", this.appLocale);
         formatBackend = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", this.appLocale);
         defaultDateFormat = new SimpleDateFormat("MMM dd yyyy", this.appLocale);
 
@@ -115,9 +116,13 @@ public class DateUtils {
             date = formatBackend.parse(txtDate);
         } catch (ParseException e) {
             try {
-                date = defaultDateFormat.parse(txtDate);
+                date = fullBackendFormat.parse(txtDate);
             } catch (ParseException e1) {
-                e1.printStackTrace();
+                try {
+                    date = defaultDateFormat.parse(txtDate);
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
         return date;
@@ -169,34 +174,22 @@ public class DateUtils {
 
 
     public boolean getComparedDate(String StartDate, String EndDate) {
-        boolean result = false;
         Calendar c = Calendar.getInstance(Locale.ENGLISH);
-        try {
-            Date currentDate = formatBackend.parse(formatBackend.format(c.getTime()));
-            Date startDate = formatBackend.parse(StartDate);
-            Date endDate = formatBackend.parse(EndDate);
+        Date currentDate = getDateFormat(formatBackend.format(c.getTime()), null);
+        Date startDate = getDateFormat(StartDate, null);
+        Date endDate = getDateFormat(EndDate, null);
 
-            result = currentDate.after(startDate) && currentDate.before(endDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return result;
+        return currentDate.after(startDate) && currentDate.before(endDate);
     }
 
 
     public boolean getComparedDate(am.dateutils.Date startDate, am.dateutils.Date endDate) {
-        boolean result = false;
         Calendar c = Calendar.getInstance(Locale.ENGLISH);
-        try {
-            Date currentDate = formatBackend.parse(formatBackend.format(c.getTime()));
-            Date start = getDateFormat(startDate.getDate(), startDate.getTimezone());
-            Date end = getDateFormat(endDate.getDate(), endDate.getTimezone());
+        Date currentDate = getDateFormat(formatBackend.format(c.getTime()), null);
+        Date start = getDateFormat(startDate.getDate(), startDate.getTimezone());
+        Date end = getDateFormat(endDate.getDate(), endDate.getTimezone());
 
-            result = currentDate.after(start) && currentDate.before(end);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return result;
+        return currentDate.after(start) && currentDate.before(end);
     }
 
 
