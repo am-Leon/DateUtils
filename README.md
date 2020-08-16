@@ -1,6 +1,6 @@
 # DateUtils [![](https://jitpack.io/v/am-Leon/DateUtils.svg)](https://jitpack.io/#am-Leon/DateUtils)
 
-Leon Date Utils is an Android library written to Handle Backend date to produce in simple way.
+Leon DateUtils is an Android library written to Handle Backend date to produce in simple way.
 
 ## Installation
 
