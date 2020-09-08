@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="minute_ago">Minutes ago</string>
-    <string name="minutes_ago">Minutes ago</string>
-    <string name="hour_ago">Hour ago</string>
-    <string name="hours_ago">Hours ago</string>
+    <string name="minute">\u0020Minutes</string>
+    <string name="minutes">\u0020Minutes</string>
+    <string name="hour">\u0020Hour</string>
+    <string name="hours">\u0020Hours</string>
+    <string name="two_hours">\u0020Hours</string>
+    <string name="two_minutes">\u0020Minutes</string>
     <string name="yesterday">Yesterday</string>
     <string name="am">AM</string>
     <string name="pm">PM</string>
     <string name="today">Today</string>
     <string name="now">Now</string>
+    <string name="ago">\u0020ago</string>
 
 </resources>

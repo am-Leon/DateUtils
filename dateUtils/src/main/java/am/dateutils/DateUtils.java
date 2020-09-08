@@ -2,6 +2,8 @@ package am.dateutils;
 
 import android.content.Context;
 
+import androidx.annotation.StringRes;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,7 +22,7 @@ public class DateUtils {
     private DateFormat formatBackend, fullBackendFormat, defaultDateFormat;
 
 
-    //------------------------- Class Constructor ------------------------------
+    //-------------------------------- Class Constructor -------------------------------------------
 
     public DateUtils(Context context) {
         this.context = context;
@@ -258,12 +260,18 @@ public class DateUtils {
 
 
     public String getTimeAgo() {
-        return getMinutes(false);
+        if (appLocale.toLanguageTag().equals("ar"))
+            return getArMinutes(false);
+        else
+            return getMinutes(false);
     }
 
 
     public String getSimpleTimeAgo() {
-        return getMinutes(true);
+        if (appLocale.toLanguageTag().equals("ar"))
+            return getArMinutes(true);
+        else
+            return getMinutes(true);
     }
 
 
@@ -271,31 +279,31 @@ public class DateUtils {
         int timeInMinutes = (int) TimeUnit.MILLISECONDS.toMinutes(Calendar.getInstance().getTimeInMillis() - getCalendarFormat(txtDate, txtTimeZone).getTimeInMillis());
 
         if (timeInMinutes < 0 && timeInMinutes > -1440)
-            return context.getString(R.string.today);
+            return getString(R.string.today);
 
         else if (timeInMinutes == 0 || timeInMinutes == 1)
-            return context.getString(R.string.now);
+            return getString(R.string.now);
 
         else if (timeInMinutes == 2)
-            return timeInMinutes + " " + context.getString(R.string.minute_ago);
+            return timeInMinutes + getString(R.string.minutes).concat(getString(R.string.ago));
 
         else if (timeInMinutes > 2 && timeInMinutes < 11)
-            return timeInMinutes + " " + context.getString(R.string.minutes_ago);
+            return timeInMinutes + getString(R.string.minutes).concat(getString(R.string.ago));
 
         else if (timeInMinutes >= 11 && timeInMinutes < 60)
-            return timeInMinutes + " " + context.getString(R.string.minute_ago);
+            return timeInMinutes + getString(R.string.minutes).concat(getString(R.string.ago));
 
         else if (timeInMinutes >= 60 && timeInMinutes < 180)
-            return (timeInMinutes / 60) + " " + context.getString(R.string.hours_ago);
+            return (timeInMinutes / 60) + getString(R.string.hours).concat(getString(R.string.ago));
 
         else if (timeInMinutes >= 180 && timeInMinutes < 660)
-            return (timeInMinutes / 60) + " " + context.getString(R.string.hours_ago);
+            return (timeInMinutes / 60) + getString(R.string.hours).concat(getString(R.string.ago));
 
         else if (timeInMinutes >= 660 && timeInMinutes < 1440)
-            return (timeInMinutes / 60) + " " + context.getString(R.string.hours_ago);
+            return (timeInMinutes / 60) + getString(R.string.hours).concat(getString(R.string.ago));
 
         else if (timeInMinutes >= 1440 && timeInMinutes < 2880)
-            return context.getString(R.string.yesterday);
+            return getString(R.string.yesterday);
 
         else {
             if (simpleFormat)
@@ -303,6 +311,53 @@ public class DateUtils {
             else
                 return getDefaultDateFormat();
         }
+    }
+
+
+    private String getArMinutes(boolean simpleFormat) {
+        int timeInMinutes = (int) TimeUnit.MILLISECONDS.toMinutes(Calendar.getInstance().getTimeInMillis() - getCalendarFormat(txtDate, txtTimeZone).getTimeInMillis());
+
+        if (timeInMinutes < 0 && timeInMinutes > -1440)
+            return getString(R.string.today);
+
+        else if (timeInMinutes == 0 || timeInMinutes == 1)
+            return getString(R.string.now);
+
+        else if (timeInMinutes == 2)
+            return getString(R.string.ago) + getString(R.string.two_minutes);
+
+        else if (timeInMinutes > 2 && timeInMinutes < 11)
+            return getString(R.string.ago) + Utils.getNumberFormat(timeInMinutes) + getString(R.string.minutes);
+
+        else if (timeInMinutes >= 11 && timeInMinutes < 60)
+            return getString(R.string.ago) + Utils.getNumberFormat(timeInMinutes) + getString(R.string.minute);
+
+        else if (timeInMinutes >= 60 && timeInMinutes < 120)
+            return getString(R.string.ago) + Utils.getNumberFormat(timeInMinutes / 60) + getString(R.string.hour);
+
+        else if (timeInMinutes >= 120 && timeInMinutes < 180)
+            return getString(R.string.ago) + Utils.getNumberFormat(timeInMinutes / 60) + getString(R.string.two_hours);
+
+        else if (timeInMinutes >= 180 && timeInMinutes < 660)
+            return getString(R.string.ago) + Utils.getNumberFormat(timeInMinutes / 60) + getString(R.string.hours);
+
+        else if (timeInMinutes >= 660 && timeInMinutes < 1440)
+            return getString(R.string.ago) + Utils.getNumberFormat(timeInMinutes / 60) + getString(R.string.hour);
+
+        else if (timeInMinutes >= 1440 && timeInMinutes < 2880)
+            return getString(R.string.yesterday);
+
+        else {
+            if (simpleFormat)
+                return getSimpleDateFormat();
+            else
+                return getDefaultDateFormat();
+        }
+    }
+
+
+    private String getString(@StringRes int resID) {
+        return context.getString(resID);
     }
 
 }
