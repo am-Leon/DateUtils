@@ -43,15 +43,6 @@ public class DateUtils {
     }
 
 
-/*    public DateUtils(Context context, long dateInMillis) {
-        this(context, dateInMillis, null, null);
-    }
-
-    public DateUtils(Context context, long dateInMillis, String appLocale) {
-        this(context, dateInMillis, null, appLocale);
-    }*/
-
-
     public DateUtils(Context context, am.dateutils.Date date) {
         this(context, date.getDate(), date.getTimezone(), null);
     }
@@ -67,13 +58,6 @@ public class DateUtils {
         this.txtDate = txtDate;
         init(appLocale, txtTimeZone);
     }
-
-
-/*    public DateUtils(Context context, long dateInMillis, String txtTimeZone, String appLocale) {
-        this.context = context;
-        this.dateInMillis = dateInMillis;
-        init(appLocale, txtTimeZone);
-    }*/
 
 
     private void init(String appLocale, String txtTimeZone) {
