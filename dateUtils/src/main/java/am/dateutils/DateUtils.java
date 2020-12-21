@@ -2,9 +2,9 @@ package am.dateutils;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -13,31 +13,43 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import static am.dateutils.DateTimeStyle.DATE_DAY_NAME;
+import static am.dateutils.DateTimeStyle.DATE_MONTH_NAME;
+
 public class DateUtils {
 
-    private Context context;
     private Locale appLocale;
     private Calendar calendar;
+    private final Context context;
     private String txtDate, txtTimeZone;
-    private DateFormat formatBackend, fullBackendFormat, defaultDateFormat;
+    private ISODateFormat dateFormat;
 
 
     //-------------------------------- Class Constructor -------------------------------------------
 
     public DateUtils(Context context) {
         this.context = context;
-        init(null);
+        init(null, null);
     }
 
 
-    public DateUtils(Context context, String txtDate) {
+    public DateUtils(Context context, @NonNull String txtDate) {
         this(context, txtDate, null, null);
     }
 
 
-    public DateUtils(Context context, String txtDate, String appLocale) {
+    public DateUtils(Context context, @NonNull String txtDate, String appLocale) {
         this(context, txtDate, null, appLocale);
     }
+
+
+/*    public DateUtils(Context context, long dateInMillis) {
+        this(context, dateInMillis, null, null);
+    }
+
+    public DateUtils(Context context, long dateInMillis, String appLocale) {
+        this(context, dateInMillis, null, appLocale);
+    }*/
 
 
     public DateUtils(Context context, am.dateutils.Date date) {
@@ -50,25 +62,25 @@ public class DateUtils {
     }
 
 
-    public DateUtils(Context context, String txtDate, String txtTimeZone, String appLocale) {
+    public DateUtils(Context context, @NonNull String txtDate, String txtTimeZone, String appLocale) {
         this.context = context;
         this.txtDate = txtDate;
-        this.txtTimeZone = txtTimeZone;
-        init(appLocale);
+        init(appLocale, txtTimeZone);
     }
 
 
-    private void init(String appLocale) {
-        if (appLocale != null)
-            this.appLocale = Locale.forLanguageTag(appLocale);
-        else
-            this.appLocale = Locale.US;
+/*    public DateUtils(Context context, long dateInMillis, String txtTimeZone, String appLocale) {
+        this.context = context;
+        this.dateInMillis = dateInMillis;
+        init(appLocale, txtTimeZone);
+    }*/
 
-        fullBackendFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", this.appLocale);
-        formatBackend = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", this.appLocale);
-        defaultDateFormat = new SimpleDateFormat("MMM dd yyyy", this.appLocale);
 
+    private void init(String appLocale, String txtTimeZone) {
+        this.dateFormat = new ISODateFormat();
         calendar = Calendar.getInstance(this.appLocale);
+        this.txtTimeZone = txtTimeZone != null ? txtTimeZone : "UTC";
+        this.appLocale = appLocale != null ? Locale.forLanguageTag(appLocale) : Locale.US;
     }
 
     //-------------------------------- Getter & Setter ---------------------------------------------
@@ -95,89 +107,109 @@ public class DateUtils {
 
     //-------------------------------- Date & Calendar Formats -------------------------------------
 
-    private Calendar getCalendarFormat(String txtDate) {
-        calendar.setTime(getDateFormat(txtDate, null));
-
+    private Calendar getCalendarFormat() {
+        calendar.setTime(getDateFormat());
         return calendar;
     }
 
 
-    private Calendar getCalendarFormat(String txtDate, String txtTimeZone) {
-        calendar.setTime(getDateFormat(txtDate, txtTimeZone));
-
-        return calendar;
-    }
-
-
-    private Date getDateFormat(String txtDate, String timeZone) {
-        if (timeZone != null)
-            formatBackend.setTimeZone(TimeZone.getTimeZone(timeZone));
-
+    private Date getDateFormat() {
         Date date = new Date();
         try {
-            date = formatBackend.parse(txtDate);
+            dateFormat.setTimeZone(TimeZone.getTimeZone(txtTimeZone));
+            date = dateFormat.parse(txtDate);
         } catch (ParseException e) {
-            try {
-                date = fullBackendFormat.parse(txtDate);
-            } catch (ParseException e1) {
-                try {
-                    date = defaultDateFormat.parse(txtDate);
-                } catch (ParseException ex) {
-                    ex.printStackTrace();
-                }
-            }
+            e.printStackTrace();
         }
         return date;
     }
 
 
+    //-------------------------------- Pattern Style -----------------------------------------------
+
+    public String setSpecificFormat(DateTimeStyle dateTimeStyle) {
+        return new SimpleDateFormat(dateTimeStyle.patternStyle, appLocale).format(getDateFormat());
+    }
+
+
+    public String setSpecificFormat(String wantedPattern) {
+        return new SimpleDateFormat(wantedPattern, appLocale).format(getDateFormat());
+    }
+
+
     public String getDefaultDateFormat() {
         if (appLocale.toLanguageTag().equals("ar"))
-            return new SimpleDateFormat("dd MMM yyyy", appLocale).format(getDateFormat(txtDate, txtTimeZone));
+            return setSpecificFormat(DateTimeStyle.DATE_LONG_STANDARD_AR);
         else
-            return new SimpleDateFormat("MMM dd yyyy", appLocale).format(getDateFormat(txtDate, txtTimeZone));
+            return setSpecificFormat(DateTimeStyle.DATE_LONG_STANDARD);
     }
 
 
     public String getSimpleDateFormat() {
         if (appLocale.toLanguageTag().equals("ar"))
-            return new SimpleDateFormat("dd MMM", appLocale).format(getDateFormat(txtDate, txtTimeZone));
+            return setSpecificFormat(DateTimeStyle.DATE_SHORT_STANDARD_AR);
         else
-            return new SimpleDateFormat("MMM dd", appLocale).format(getDateFormat(txtDate, txtTimeZone));
+            return setSpecificFormat(DateTimeStyle.DATE_SHORT_STANDARD);
     }
 
 
     public String getBackEndFormat() {
-        return setSpecificFormat("yyyy-MM-dd");
+        return setSpecificFormat(DateTimeStyle.DATE_BACKEND_FORMAT);
     }
 
 
-    //----------------------------------- Compare Dates --------------------------------------------
+    //-------------------------------- Static Methods ----------------------------------------------
 
-    /**
-     * in case of @param lastDate has the same timeZone with device timeZone
-     */
-    public int compareTwoDates(String lastDate) {
-        // if result = -1 then newDate bigger  else older is bigger
-        return getCalendarFormat(txtDate).compareTo(getCalendarFormat(lastDate));
+    public static boolean isDateBeforeDeviceDate(String date) {
+        Date currentDate = getDeviceDate();
+        Date startDate = getDateFormat(date, null);
+
+        return startDate.before(currentDate);
     }
 
 
-    public int compareTwoDates(String lastDate, String lastDateTimeZone) {
-        // if result = -1 then newDate bigger  else older is bigger
-        return getCalendarFormat(txtDate).compareTo(getCalendarFormat(lastDate, lastDateTimeZone));
+    public static boolean isDateBeforeDeviceDate(String date, String dateTimeZone) {
+        Date currentDate = getDeviceDate();
+        Date startDate = getDateFormat(date, dateTimeZone);
+
+        return startDate.before(currentDate);
     }
 
 
-    public int compareTwoDates(String firstDate, String firstDateTimeZone, String lastDate, String lastDateTimeZone) {
-        // if result = -1 then newDate bigger  else older is bigger
-        return getCalendarFormat(firstDate, firstDateTimeZone).compareTo(getCalendarFormat(lastDate, lastDateTimeZone));
+    public static boolean isDateBeforeDeviceDate(am.dateutils.Date date) {
+        Date currentDate = getDeviceDate();
+        Date startDate = getDateFormat(date.getDate(), date.getTimezone());
+
+        return startDate.before(currentDate);
     }
 
 
-    public boolean getComparedDate(String StartDate, String EndDate) {
-        Calendar c = Calendar.getInstance(Locale.ENGLISH);
-        Date currentDate = getDateFormat(formatBackend.format(c.getTime()), null);
+    public static boolean isFirstDateBeforeSecondDate(String firstDate, String secondDate) {
+        Date startDate = getDateFormat(firstDate, null);
+        Date endDate = getDateFormat(secondDate, null);
+
+        return startDate.before(endDate);
+    }
+
+
+    public static boolean isFirstDateBeforeSecondDate(String firstDate, String firstTimeZone, String secondDate, String secondTimeZone) {
+        Date startDate = getDateFormat(firstDate, firstTimeZone);
+        Date endDate = getDateFormat(secondDate, secondTimeZone);
+
+        return startDate.before(endDate);
+    }
+
+
+    public static boolean isFirstDateBeforeSecondDate(am.dateutils.Date firstDate, am.dateutils.Date secondDate) {
+        Date startDate = getDateFormat(firstDate.getDate(), firstDate.getTimezone());
+        Date endDate = getDateFormat(secondDate.getDate(), secondDate.getTimezone());
+
+        return startDate.before(endDate);
+    }
+
+
+    public static boolean isCurrentDateTimeBetweenDates(String StartDate, String EndDate) {
+        Date currentDate = getDeviceDate();
         Date startDate = getDateFormat(StartDate, null);
         Date endDate = getDateFormat(EndDate, null);
 
@@ -185,35 +217,88 @@ public class DateUtils {
     }
 
 
-    public boolean getComparedDate(am.dateutils.Date startDate, am.dateutils.Date endDate) {
-        Calendar c = Calendar.getInstance(Locale.ENGLISH);
-        Date currentDate = getDateFormat(formatBackend.format(c.getTime()), null);
-        Date start = getDateFormat(startDate.getDate(), startDate.getTimezone());
-        Date end = getDateFormat(endDate.getDate(), endDate.getTimezone());
+    public static boolean isCurrentDateTimeBetweenDates(String StartDate, String startTimeZone, String EndDate, String endTimeZone) {
+        Date currentDate = getDeviceDate();
+        Date startDate = getDateFormat(StartDate, startTimeZone);
+        Date endDate = getDateFormat(EndDate, endTimeZone);
 
-        return currentDate.after(start) && currentDate.before(end);
+        return currentDate.after(startDate) && currentDate.before(endDate);
     }
 
 
-    //------------------------- Date Functions --------------------------------
+    public static boolean isCurrentDateTimeBetweenDates(am.dateutils.Date StartDate, am.dateutils.Date EndDate) {
+        Date currentDate = getDeviceDate();
+        Date startDate = getDateFormat(StartDate.getDate(), StartDate.getTimezone());
+        Date endDate = getDateFormat(EndDate.getDate(), EndDate.getTimezone());
 
-    public String setSpecificFormat(String wantedPattern) {
-        return new SimpleDateFormat(wantedPattern, appLocale).format(getDateFormat(txtDate, txtTimeZone));
+        return currentDate.after(startDate) && currentDate.before(endDate);
+    }
+
+
+    private static Date getDateFormat(String txtDate, String txtTimeZone) {
+        Date date = new Date();
+        ISODateFormat dateFormat = new ISODateFormat();
+        try {
+            if (txtTimeZone != null)
+                dateFormat.setTimeZone(TimeZone.getTimeZone(txtTimeZone));
+            date = dateFormat.parse(txtDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+
+
+    private static Date getDeviceDate() {
+        Calendar c = Calendar.getInstance(Locale.ENGLISH);
+        ISODateFormat dateFormat = new ISODateFormat();
+        return getDateFormat(dateFormat.format(c.getTime()), null);
+    }
+
+
+    //-------------------------------- Date Functions ----------------------------------------------
+
+    public long toMillis() {
+        return getDateFormat().getTime();
+    }
+
+
+    public boolean isDateBeforeDeviceDate() {
+        Calendar c = Calendar.getInstance(Locale.ENGLISH);
+        ISODateFormat dateFormat = new ISODateFormat();
+        Date currentDate = getDateFormat(dateFormat.format(c.getTime()), null);
+
+        return getDateFormat().before(currentDate);
+    }
+
+
+    public boolean isYesterday() {
+        // Check if yesterday
+        Calendar c1 = Calendar.getInstance(); // today
+        c1.add(Calendar.DAY_OF_YEAR, -1); // yesterday
+
+        return c1.get(Calendar.YEAR) == getCalendarFormat().get(Calendar.YEAR)
+                && c1.get(Calendar.DAY_OF_YEAR) == getCalendarFormat().get(Calendar.DAY_OF_YEAR);
+    }
+
+
+    public boolean isToday() {
+        return android.text.format.DateUtils.isToday(getDateFormat().getTime());
     }
 
 
     public int getYear() {
-        return getCalendarFormat(txtDate, txtTimeZone).get(Calendar.YEAR);
+        return getCalendarFormat().get(Calendar.YEAR);
     }
 
 
     public String getMonthName() {
-        return new SimpleDateFormat("MMMM", appLocale).format(getDateFormat(txtDate, txtTimeZone));
+        return new SimpleDateFormat(DATE_MONTH_NAME.patternStyle, appLocale).format(getDateFormat());
     }
 
 
     public String getMonth() {
-        int month = getCalendarFormat(txtDate, txtTimeZone).get(Calendar.MONTH) + 1;
+        int month = getCalendarFormat().get(Calendar.MONTH) + 1;
 
         if (month < 10)
             return "0" + month;
@@ -223,12 +308,12 @@ public class DateUtils {
 
 
     public String getDayName() {
-        return new SimpleDateFormat("EEEE", appLocale).format(getDateFormat(txtDate, txtTimeZone));
+        return new SimpleDateFormat(DATE_DAY_NAME.patternStyle, appLocale).format(getDateFormat());
     }
 
 
     public String getDay() {
-        int day = getCalendarFormat(txtDate, txtTimeZone).get(Calendar.DAY_OF_MONTH);
+        int day = getCalendarFormat().get(Calendar.DAY_OF_MONTH);
 
         if (day < 10)
             return "0" + day;
@@ -238,24 +323,10 @@ public class DateUtils {
 
 
     public String getHourFormat() {
-        StringBuilder stringBuilder = new StringBuilder();
-        int hour = getCalendarFormat(txtDate, txtTimeZone).get(Calendar.HOUR);
-        int minute = getCalendarFormat(txtDate, txtTimeZone).get(Calendar.MINUTE);
-
-        if (hour < 10) {
-            if (minute < 10)
-                stringBuilder.append("0").append(hour).append(":0").append(minute);
-            else
-                stringBuilder.append("0").append(hour).append(":").append(minute);
-        } else
-            stringBuilder.append(hour).append(":").append(minute);
-
-        if (getCalendarFormat(txtDate, txtTimeZone).get(Calendar.AM_PM) == Calendar.AM)
-            stringBuilder.append(" ").append(context.getString(R.string.am));
+        if (appLocale.toLanguageTag().equals("ar"))
+            return getHourAr();
         else
-            stringBuilder.append(" ").append(context.getString(R.string.pm));
-
-        return String.valueOf(stringBuilder);
+            return getHourEn();
     }
 
 
@@ -276,10 +347,10 @@ public class DateUtils {
 
 
     private String getMinutes(boolean simpleFormat) {
-        int timeInMinutes = (int) TimeUnit.MILLISECONDS.toMinutes(Calendar.getInstance().getTimeInMillis() - getCalendarFormat(txtDate, txtTimeZone).getTimeInMillis());
+        int timeInMinutes = (int) TimeUnit.MILLISECONDS.toMinutes(Calendar.getInstance().getTimeInMillis() - getCalendarFormat().getTimeInMillis());
 
         if (timeInMinutes < 0 && timeInMinutes > -1440)
-            return getString(R.string.today);
+            return getString(R.string.today) + getHourFormat();
 
         else if (timeInMinutes == 0 || timeInMinutes == 1)
             return getString(R.string.now);
@@ -315,10 +386,10 @@ public class DateUtils {
 
 
     private String getArMinutes(boolean simpleFormat) {
-        int timeInMinutes = (int) TimeUnit.MILLISECONDS.toMinutes(Calendar.getInstance().getTimeInMillis() - getCalendarFormat(txtDate, txtTimeZone).getTimeInMillis());
+        int timeInMinutes = (int) TimeUnit.MILLISECONDS.toMinutes(Calendar.getInstance().getTimeInMillis() - getCalendarFormat().getTimeInMillis());
 
         if (timeInMinutes < 0 && timeInMinutes > -1440)
-            return getString(R.string.today);
+            return getHourFormat() + getString(R.string.today);
 
         else if (timeInMinutes == 0 || timeInMinutes == 1)
             return getString(R.string.now);
@@ -355,6 +426,54 @@ public class DateUtils {
         }
     }
 
+
+    private String getHourEn() {
+        StringBuilder stringBuilder = new StringBuilder();
+        int hour = getCalendarFormat().get(Calendar.HOUR);
+        int minute = getCalendarFormat().get(Calendar.MINUTE);
+
+        if (hour < 10) {
+            if (minute < 10)
+                stringBuilder.append("0").append(hour).append(":0").append(minute);
+            else
+                stringBuilder.append("0").append(hour).append(":").append(minute);
+        } else
+            stringBuilder.append(hour).append(":").append(minute);
+
+        if (getCalendarFormat().get(Calendar.AM_PM) == Calendar.AM)
+            stringBuilder.append(" ").append(getString(R.string.am));
+        else
+            stringBuilder.append(" ").append(getString(R.string.pm));
+
+        return String.valueOf(stringBuilder);
+    }
+
+
+    private String getHourAr() {
+        StringBuilder stringBuilder = new StringBuilder();
+        int hour = getCalendarFormat().get(Calendar.HOUR);
+        int minute = getCalendarFormat().get(Calendar.MINUTE);
+
+        if (hour < 10) {
+            if (minute < 10)
+                stringBuilder.append(Utils.getNumberFormat(minute)).append(Utils.getNumberFormat(0)).append(":")
+                        .append(Utils.getNumberFormat(hour)).append(Utils.getNumberFormat(0));
+            else
+                stringBuilder.append(Utils.getNumberFormat(minute)).append(":")
+                        .append(Utils.getNumberFormat(hour)).append(Utils.getNumberFormat(0));
+        } else
+            stringBuilder.append(Utils.getNumberFormat(minute)).append(":").append(Utils.getNumberFormat(hour));
+
+        if (getCalendarFormat().get(Calendar.AM_PM) == Calendar.AM)
+            stringBuilder.append(" ").append(getString(R.string.am));
+        else
+            stringBuilder.append(" ").append(getString(R.string.pm));
+
+        return String.valueOf(stringBuilder);
+    }
+
+
+    //-------------------------------- Settings ----------------------------------------------------
 
     private String getString(@StringRes int resID) {
         return context.getString(resID);

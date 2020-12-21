@@ -10,7 +10,7 @@
     <string name="yesterday">Yesterday</string>
     <string name="am">AM</string>
     <string name="pm">PM</string>
-    <string name="today">Today</string>
+    <string name="today">Today\u0020</string>
     <string name="now">Now</string>
     <string name="ago">\u0020ago</string>
 
