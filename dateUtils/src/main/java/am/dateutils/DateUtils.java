@@ -440,11 +440,11 @@ public class DateUtils {
 
         if (hour < 10) {
             if (minute < 10)
-                stringBuilder.append(Utils.getNumberFormat(minute)).append(Utils.getNumberFormat(0)).append(":")
-                        .append(Utils.getNumberFormat(hour)).append(Utils.getNumberFormat(0));
+                stringBuilder.append(Utils.getNumberFormat(0)).append(Utils.getNumberFormat(minute)).append(":")
+                        .append(Utils.getNumberFormat(0)).append(Utils.getNumberFormat(hour));
             else
                 stringBuilder.append(Utils.getNumberFormat(minute)).append(":")
-                        .append(Utils.getNumberFormat(hour)).append(Utils.getNumberFormat(0));
+                        .append(Utils.getNumberFormat(0)).append(Utils.getNumberFormat(hour));
         } else
             stringBuilder.append(Utils.getNumberFormat(minute)).append(":").append(Utils.getNumberFormat(hour));
 
