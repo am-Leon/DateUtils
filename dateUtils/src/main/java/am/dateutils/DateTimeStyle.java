@@ -83,7 +83,12 @@ public enum DateTimeStyle {
     DATE_SHORT_STANDARD("MMM dd"),
 
     /**
-     * Backend Style (yyyy-MM-dd'T'hh:mm:ss'Z')
+     * Backend Style (yyyy-MM-dd hh:mm:ss z)
+     */
+    DATE_TIME_ZONE_FULL_BACKEND_FORMAT("yyyy-MM-dd hh:mm:ss z"),
+
+    /**
+     * Backend Style (yyyy-MM-dd hh:mm:ss)
      */
     DATE_TIME_FULL_BACKEND_FORMAT("yyyy-MM-dd hh:mm:ss"),
 

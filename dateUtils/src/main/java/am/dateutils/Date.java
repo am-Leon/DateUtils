@@ -5,11 +5,39 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+
 public class Date implements Parcelable {
 
     private String date;
     private String timezone_type;
     private String timezone;
+
+    public Date(String date, String timezone) {
+        this.date = date;
+        this.timezone = timezone;
+    }
+
+    public Date(String date, String timezone_type, String timezone) {
+        this.date = date;
+        this.timezone_type = timezone_type;
+        this.timezone = timezone;
+    }
+
+    //-------------------------------- Methods -----------------------------------------------------
+
+    public String toJSON() {
+        return new Gson().toJson(this);
+    }
+
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "Date " + getDate() + " TimeZone_type " + getTimezone_type() + " TimeZone " + getTimezone();
+    }
+
+    //-------------------------------- Getters & Setters -------------------------------------------
 
     private Date(Parcel in) {
         date = in.readString();
@@ -65,9 +93,4 @@ public class Date implements Parcelable {
         dest.writeString(timezone);
     }
 
-    @NonNull
-    @Override
-    public String toString() {
-        return "Date " + getDate() + " TimeZone_type " + getTimezone_type() + " TimeZone " + getTimezone();
-    }
 }

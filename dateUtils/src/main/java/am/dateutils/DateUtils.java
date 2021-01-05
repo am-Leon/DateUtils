@@ -219,6 +219,16 @@ public class DateUtils {
     }
 
 
+    public static String getDateTimeWithTimeZoneAsString(String date, String time) {
+        return date.concat(" ").concat(time).concat(" ").concat(getDeviceTimeZone());
+    }
+
+
+    public static am.dateutils.Date getDateTimeWithTimeZoneAsDate(String date, String time) {
+        return new am.dateutils.Date(date.concat(" ").concat(time), getDeviceTimeZone());
+    }
+
+
     private static Date getDateFormat(String txtDate, String txtTimeZone) {
         Date date = new Date();
         ISODateFormat dateFormat = new ISODateFormat();
@@ -239,6 +249,10 @@ public class DateUtils {
         return getDateFormat(dateFormat.format(c.getTime()), null);
     }
 
+
+    private static String getDeviceTimeZone() {
+        return TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT);
+    }
 
     //-------------------------------- Date Functions ----------------------------------------------
 
@@ -429,7 +443,7 @@ public class DateUtils {
         else
             stringBuilder.append(" ").append(getString(R.string.pm));
 
-        return String.valueOf(stringBuilder);
+        return String.valueOf(stringBuilder.append(" "));
     }
 
 
@@ -453,7 +467,7 @@ public class DateUtils {
         else
             stringBuilder.append(" ").append(getString(R.string.pm));
 
-        return String.valueOf(stringBuilder);
+        return String.valueOf(stringBuilder.append(" "));
     }
 
 
