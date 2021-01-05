@@ -137,8 +137,18 @@ public class DateUtils {
     }
 
 
-    public String getBackEndFormat() {
+    public String getBackEndDateFormat() {
         return setSpecificFormat(DateTimeStyle.DATE_BACKEND_FORMAT);
+    }
+
+
+    public String getBackEndDateTimeFormat() {
+        return setSpecificFormat(DateTimeStyle.DATE_TIME_FULL_BACKEND_FORMAT);
+    }
+
+
+    public String getBackEndDateTimeFormatWithTimeZone() {
+        return setSpecificFormat(DateTimeStyle.DATE_TIME_ZONE_FULL_BACKEND_FORMAT);
     }
 
 
