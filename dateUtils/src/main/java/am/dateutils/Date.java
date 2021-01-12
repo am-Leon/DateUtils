@@ -13,6 +13,9 @@ public class Date implements Parcelable {
     private String timezone_type;
     private String timezone;
 
+    public Date() {
+    }
+
     public Date(String date, String timezone) {
         this.date = date;
         this.timezone = timezone;
