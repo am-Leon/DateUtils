@@ -3,9 +3,9 @@ package am.dateutils;
 public enum DateTimeStyle {
 
     /**
-     * Full Date Time Standard (الاحد, ١٣ مايو ٢٠٢٠ ٥٣:١٠ م)
+     * Full Date Time Standard (الاحد, ١٣ مايو ٢٠٢٠ ١٠:٥٣ م)
      */
-    DATE_TIME_FULL_STANDARD_AR("EEEE, dd MMMM yyyy mm:hh a"),
+    DATE_TIME_FULL_STANDARD_AR("EEEE, dd MMMM yyyy hh:mm a"),
 
     /**
      * Full Date Time Standard (Sunday, June 13, 2020 10:53 PM)
@@ -33,9 +33,9 @@ public enum DateTimeStyle {
     DATE_FULL_SEPARATOR("EEEE MM/dd/yyyy"),
 
     /**
-     * Long Date Time Standard (١٣ مايو ٢٠٢٠ ٥٣:١٠ م)
+     * Long Date Time Standard (١٣ مايو ٢٠٢٠ ١٠:٥٣ م)
      */
-    DATE_TIME_LONG_STANDARD_AR("dd MMM yyyy mm:hh a"),
+    DATE_TIME_LONG_STANDARD_AR("dd MMM yyyy hh:mm a"),
 
     /**
      * Long Date Time Standard (June 13 2020 10:53 PM)
@@ -63,9 +63,9 @@ public enum DateTimeStyle {
     DATE_MEDIUM_STANDARD("MM/dd/yyyy"),
 
     /**
-     * Short Date Time Standard (١٣ مايو ٥٣:١٠ م)
+     * Short Date Time Standard (١٣ مايو ١٠:٥٣ م)
      */
-    DATE_TIME_SHORT_STANDARD_AR("dd MMM mm:hh a"),
+    DATE_TIME_SHORT_STANDARD_AR("dd MMM hh:mm a"),
 
     /**
      * Short Date Time Standard (June 13 10:53 PM)
@@ -103,9 +103,24 @@ public enum DateTimeStyle {
     DATE_MONTH_NAME("MMMM"),
 
     /**
+     * Date Simple Month Name (Apr)
+     */
+    DATE_MONTH_SIMPLE_NAME("MMM"),
+
+    /**
      * Date Full Day Name (Sunday)
      */
-    DATE_DAY_NAME("EEEE");
+    DATE_DAY_NAME("EEEE"),
+
+    /**
+     * Date Simple Day Name (Sun)
+     */
+    DATE_DAY_SIMPLE_NAME("EEE"),
+
+    /**
+     * Time Full (10:50 AM)
+     */
+    TIME_FULL("hh:mm a");
 
     //--------------------------------------- Constructor ------------------------------------------
 

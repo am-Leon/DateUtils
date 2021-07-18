@@ -20,6 +20,6 @@ allprojects {
 
 ```groovy
 
-    implementation 'com.github.am-Leon:DateUtils:1.0.7'
+    implementation 'com.github.am-Leon:DateUtils:1.0.8'
 
 ```

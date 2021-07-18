@@ -464,13 +464,13 @@ public class DateUtils {
 
         if (hour < 10) {
             if (minute < 10)
-                stringBuilder.append(Utils.getNumberFormat(0)).append(Utils.getNumberFormat(minute)).append(":")
-                        .append(Utils.getNumberFormat(0)).append(Utils.getNumberFormat(hour));
+                stringBuilder.append(Utils.getNumberFormat(0)).append(Utils.getNumberFormat(hour)).append(":")
+                        .append(Utils.getNumberFormat(0)).append(Utils.getNumberFormat(minute));
             else
-                stringBuilder.append(Utils.getNumberFormat(minute)).append(":")
-                        .append(Utils.getNumberFormat(0)).append(Utils.getNumberFormat(hour));
+                stringBuilder.append(Utils.getNumberFormat(0)).append(Utils.getNumberFormat(hour))
+                        .append(":").append(Utils.getNumberFormat(minute));
         } else
-            stringBuilder.append(Utils.getNumberFormat(minute)).append(":").append(Utils.getNumberFormat(hour));
+            stringBuilder.append(Utils.getNumberFormat(hour)).append(":").append(Utils.getNumberFormat(minute));
 
         if (getCalendarFormat().get(Calendar.AM_PM) == Calendar.AM)
             stringBuilder.append(" ").append(getString(R.string.am));
